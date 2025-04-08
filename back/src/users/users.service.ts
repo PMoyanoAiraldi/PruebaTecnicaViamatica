@@ -1,15 +1,19 @@
-import {  Injectable, NotFoundException } from "@nestjs/common";
+import {  BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { User } from "./users.entity";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import * as bcrypt from 'bcrypt';
+import { Person } from "src/person/person.entity";
 
 @Injectable()
 export class UsersService {
     constructor(
         @InjectRepository(User)
         private readonly usersRepository: Repository<User>,
+
+        @InjectRepository(Person)
+        private readonly personRepository: Repository<Person>
     
     ) { }
 
@@ -25,13 +29,26 @@ async createUser(createUserDto: CreateUserDto): Promise<User> {
         count++;
     }
     console.log(`"${createUserDto.username}"`, createUserDto.username.length);
+
+
+    const person = await this.personRepository.findOne({ where: { idPerson: createUserDto.personId } });
+    if (!person) {
+    throw new NotFoundException('La persona con ese ID no existe');
+}
+
+    const existingUser = await this.usersRepository.findOne({ where: { person: { idPerson: createUserDto.personId } } });
+    if (existingUser) {
+        throw new BadRequestException('Esa persona ya tiene un usuario registrado');
+    }
+
+
     if (typeof createUserDto.password !== 'string') {
         throw new Error("Contraseña inválida");
     }
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-    const newUser = this.usersRepository.create({ ...createUserDto, password: hashedPassword, email });
+    const newUser = this.usersRepository.create({ ...createUserDto, password: hashedPassword, email, person});
     return this.usersRepository.save(newUser);
 }
 

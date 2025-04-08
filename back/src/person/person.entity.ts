@@ -7,10 +7,10 @@ export class Person {
     @PrimaryGeneratedColumn()
     idPerson: number;
 
-    @Column({ length: 80 })
+    @Column({ length: 60 })
     names: string;
 
-    @Column({ length: 80 })
+    @Column({ length: 60 })
     surnames: string;
 
     @Column({ length: 10, unique: true })

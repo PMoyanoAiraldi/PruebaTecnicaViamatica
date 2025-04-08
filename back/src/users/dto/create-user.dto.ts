@@ -1,9 +1,12 @@
-import {  IsEmail, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, MinLength } from "class-validator";
+import {  IsEmail, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 export class CreateUserDto {
     @IsString()
     @MinLength(8)
     @MaxLength(20)
+    @Matches(/^[A-Za-z0-9]*$/, { message: 'El nombre de usuario no debe contener signos' })
+    @Matches(/\d/, { message: 'El nombre de usuario debe contener al menos un número' })
+    @Matches(/[A-Z]/, { message: 'El nombre de usuario debe contener al menos una letra mayúscula' })
     username: string;
 
     @IsString()
@@ -22,6 +25,7 @@ export class CreateUserDto {
     @IsOptional()
     status?: string;  
 
-    // @IsInt()
-    // personId?: number;  
+    @IsInt()
+    @IsPositive()
+    personId?: number;  
 }
