@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Put, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, ValidationPipe } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PersonService } from "./person.service";
 import { CreatePersonDto } from "./dto/create-person.dto";
 import { Person } from "./person.entity";
 import { UpdatePersonDto } from "./dto/update-person.dto";
+import { UpdateStateDto } from "./dto/updateState-person.dto";
 
 @ApiTags("Person ")
 @Controller("person")
@@ -72,16 +73,20 @@ export class PersonController {
         ): Promise<Person> {
             return await this.personService.updatePerson(id, updatePersonDto);
     
-        // try {
-        //     const person = await this.personService.updatePerson(id, updatePersonDto);
-        //     if (!person) {
-        //         throw new NotFoundException('Persona no encontrada');
-        //     }
-        //     return person;
-        // } catch (error) {
-        //     console.error('Error al actualizar la persona:', error);
-        //     throw new InternalServerErrorException('Error inesperado al actualizar la persona');
-        // }
     }
+
+    @Patch(':id')
+    @ApiOperation({ summary: 'Modificar el estado de una persona para activarla o desactivarla' })
+    @ApiResponse({ status: 201, description: 'Estado de la persona modificado exitosamente', type: [Person] })
+    @ApiResponse({ status: 400, description: 'Datos inválidos' })
+    @ApiResponse({ status: 500, description: 'Error inesperado al modificar el estado de la persona' })
+    @ApiBody({ description: 'Cuerpo para modificar el estado de una persona', type: UpdateStateDto })
+    async updateStatePerson(
+    @Param('id') id: number,
+    @Body() updateStateDto: UpdateStateDto
+    ): Promise<Person> {
+    return this.personService.patchPerson(id, updateStateDto.state);
+    }
+
 
 }

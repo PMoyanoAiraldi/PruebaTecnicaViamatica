@@ -102,4 +102,16 @@ async updatePerson(idPerson: number,updatePersonDto: UpdatePersonDto): Promise<P
 
 }
 
+async patchPerson(idPerson: number, state: boolean): Promise<Person>{
+    const person = await this.personRepository.findOne({ where: { idPerson } });
+    
+        if (!person) {
+            throw new NotFoundException('Persona no encontrada');
+        }
+    
+        person.state = state;
+        await this.personRepository.save(person);
+
+        return person
+    }
 }

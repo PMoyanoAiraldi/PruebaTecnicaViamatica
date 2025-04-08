@@ -7,7 +7,7 @@ export class Rol {
     @PrimaryGeneratedColumn()
     idRol: number;
 
-    @Column({ length: 20, unique: true })
+    @Column({ length: 50, unique: true })
     rolName: string;
 
     @OneToMany(() => RolUsers, (rolUsuarios) => rolUsuarios.rol)
@@ -15,4 +15,7 @@ export class Rol {
 
     @OneToMany(() => RolOptions, (rolOptions) => rolOptions.rol)
     optionsRol: RolOptions[];
+    
+    @Column({default: true})
+    state: boolean
 }

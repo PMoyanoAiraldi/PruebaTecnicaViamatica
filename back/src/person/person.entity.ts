@@ -21,4 +21,7 @@ export class Person {
 
     @OneToMany(() => User, (user) => user.person)
     users: User[];
+
+    @Column({ default: true })
+    state: boolean;
 }
