@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import * as bcrypt from 'bcrypt';
 import { Person } from "src/person/person.entity";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Injectable()
 export class UsersService {
@@ -19,7 +20,9 @@ export class UsersService {
 
 
 async createUser(createUserDto: CreateUserDto): Promise<User> {
-    
+    if (!createUserDto.personId) {
+        throw new BadRequestException("Se requiere el ID de la persona para crear el usuario");
+    }
     let email = createUserDto.email;
     let count = 1;
 
@@ -40,6 +43,7 @@ async createUser(createUserDto: CreateUserDto): Promise<User> {
     if (existingUser) {
         throw new BadRequestException('Esa persona ya tiene un usuario registrado');
     }
+    console.log('Persona ya tiene usuario?', existingUser);
 
 
     if (typeof createUserDto.password !== 'string') {
@@ -64,7 +68,11 @@ async getUserForId(idUser: number): Promise<User> {
 
 async findByUsernameOrEmail(identifier: string): Promise<User | null> {
     return this.usersRepository.findOne({
-        where: [{ email: identifier }, { username: identifier }],
+        where: [
+            { email: identifier }, 
+            { username: identifier }
+        ],
+        relations: ['rolesUsers', 'rolesUsers.rol']
     });
 }
 
@@ -83,5 +91,44 @@ async findByUsernameOrEmail(identifier: string): Promise<User | null> {
     async resetFailedAttempts(userId: number) {
     await this.usersRepository.update(userId, { failedAttempts: 0 });
 }
+
+
+async getUsers(): Promise<User[]>{
+    const users =  await this.usersRepository.find()
+    return users
+}
+
+async updateUsers(idUser: number,updateUserDto: UpdateUserDto): Promise<User>{
+    const user = await this.usersRepository.findOne({ where: { idUser } });
+    if (!user) {
+        throw new Error(`Usuario con ${idUser} no fue encontrado`);
+    }
+
+    const updateData = {
+        username: updateUserDto.username || user.username,  
+        password: updateUserDto.password || user.password,        
+        email: updateUserDto.email || user.email,  
+        
+    };
+        
+    
+    await this.usersRepository.save({ ...user, ...updateData });
+
+    return { ...user, ...updateData };
+
+}
+
+async patchUser(idUser: number, status: string): Promise<User>{
+    const user = await this.usersRepository.findOne({ where: { idUser } });
+    
+        if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+    
+        user.status = status;
+        await this.usersRepository.save(user);
+
+        return user
+    }
 
 }

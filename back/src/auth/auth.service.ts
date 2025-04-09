@@ -42,10 +42,16 @@ export class AuthService {
         //  Crear una nueva sesión
         await this.sessionsService.createSession(user);
     
+        // Obtener rol de forma segura
+        const role =  user?.rolesUsers?.length > 0 && user.rolesUsers[0]?.rol?.rolName
+            ? user.rolesUsers[0].rol.rolName
+            : 'USER';
+
+
         // Generar JWT
         const payload: { sub: number; role: string } = { 
             sub: user.idUser,  
-            role: user.rolesUsers.length > 0 ? user.rolesUsers[0].rol.rolName : 'USER', 
+            role, 
         };
         return {
             access_token: this.jwtService.sign(payload),

@@ -11,4 +11,7 @@ export class RolOptions {
 
     @ManyToOne(() => Rol, (rol) => rol.optionsRol)
     rol: Rol;
+
+    @Column({default: true})
+    state: boolean
 }

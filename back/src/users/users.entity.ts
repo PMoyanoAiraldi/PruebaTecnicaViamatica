@@ -1,7 +1,7 @@
 import { Person } from "src/person/person.entity";
 import { RolUsers } from "src/rol_users/rol_users.entity";
 import { Sessions } from "src/sessions/sessions.entity";
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('users')
 export class User {
@@ -11,13 +11,13 @@ export class User {
     @Column({ length: 20,type: 'varchar' })
     username: string;
 
-    @Column({ length: 8 })
+    @Column({ length: 60 })
     password: string;
 
     @Column({ length: 50, unique: true })
     email: string;
 
-    @Column({ length: 20, default: 'USER'})
+    @Column({ length: 20, default: 'activo'})
     status: string;
 
 
@@ -25,6 +25,7 @@ export class User {
     failedAttempts: number;
 
     @ManyToOne(() => Person, (person) => person.users)
+    @JoinColumn({ name: 'personId' })
     person: Person;
 
     @OneToMany(() => RolUsers, (rolUsers) => rolUsers.user)

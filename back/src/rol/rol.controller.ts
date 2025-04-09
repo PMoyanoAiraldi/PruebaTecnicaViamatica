@@ -60,7 +60,7 @@ export class RolController {
         description: 'Datos para actualizar el rol',
         type: UpdateRolDto
         })
-    async updatePerson(
+    async updateRol(
     @Param('id') id: number, 
     @Body(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, skipMissingProperties: true,transform: true})) updateRolDto: UpdateRolDto, 
     ): Promise<Rol> {

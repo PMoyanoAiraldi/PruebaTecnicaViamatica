@@ -6,11 +6,16 @@ import { Request } from 'express';
 
 
 interface JwtPayload {
-  sub: string;
-  email: string;
+  sub: number;
+  email?: string;
+  role?: string;
   iat: number;
   exp: number;
+  iatDate?: Date;
+  expDate?: Date;
 }
+
+
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -24,6 +29,7 @@ export class AuthGuard implements CanActivate {
   ): Promise<boolean>{
     const request: Request = context.switchToHttp().getRequest() 
     const token = this.extractTokenFromHeader(request)
+    
 
     if(!token){
       throw new UnauthorizedException('El token no fue encontrado')
@@ -35,7 +41,9 @@ export class AuthGuard implements CanActivate {
       });
       
       request['user'] = {
-        ...payload,
+        id: payload.sub,
+        email: payload.email,
+        rol: payload.role,
         iatDate: new Date(payload.iat * 1000),
         expDate: new Date(payload.exp * 1000),
       };
@@ -49,5 +57,6 @@ export class AuthGuard implements CanActivate {
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined
+    
   }
 }

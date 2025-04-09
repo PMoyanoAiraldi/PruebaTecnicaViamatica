@@ -1,3 +1,4 @@
+import { ApiProperty } from "@nestjs/swagger";
 import {  IsEmail, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, Matches, MaxLength, MinLength } from "class-validator";
 
 export class CreateUserDto {
@@ -23,6 +24,10 @@ export class CreateUserDto {
 
     @MaxLength(20)
     @IsOptional()
+    @ApiProperty({
+        description: 'Indica si el está activo, inactivo, bloqueado',
+        example: 'activo', 
+    })
     status?: string;  
 
     @IsInt()

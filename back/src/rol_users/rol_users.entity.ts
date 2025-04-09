@@ -1,6 +1,6 @@
 import { Rol } from "src/rol/rol.entity";
 import { User } from "src/users/users.entity";
-import { Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('rol_users')
 export class RolUsers {
@@ -12,4 +12,7 @@ export class RolUsers {
 
     @ManyToOne(() => Rol, (rol) => rol.usersWithRol)
     rol: Rol;
+    
+    @Column({default:true})
+    state: boolean
 }

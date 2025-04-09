@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LoginUserDto } from "src/users/dto/login-user.dto";
 import { AuthGuard } from "src/guard/auth.guard";
@@ -33,12 +33,15 @@ export class AuthController {
         return this.authService.login(loginDto);
     }
 
-    @UseGuards(AuthGuard)
     @Post('logout')
+    @UseGuards(AuthGuard)
+    @ApiBearerAuth('access-token')
     async logout(@Req() req: AuthenticatedRequest) {
-        if (!req.user || typeof req.user.id !== 'number') {
+        const userId = req.user?.id;
+        if (typeof userId !== 'number') {
             throw new Error('Invalid or missing user ID');
         }
-        return this.authService.logout(req.user.id);
+
+        return this.authService.logout(userId);
 }
 }

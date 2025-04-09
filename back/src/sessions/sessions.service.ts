@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Sessions } from "./sessions.entity";
 import { Repository } from "typeorm";
@@ -12,19 +12,34 @@ export class SessionsService {
         private readonly sessionsRepository: Repository<Sessions>,
     ) { }
 
-    async getActiveSession(idUser: number) {
+
+    async createSession(user: User): Promise<Sessions> {
+        const session = this.sessionsRepository.create({ 
+            entryDate: new Date(),
+            
+            users: user, 
+        });
+        return await this.sessionsRepository.save(session);
+    }
+
+
+
+    async getActiveSession(idUser: number): Promise<Sessions | null> {
         return this.sessionsRepository.findOne({
             where: { users: { idUser }, closingDate: IsNull() },
             relations: ['users'],
         });
         }
     
-        async createSession(users: User) {
-        const session = this.sessionsRepository.create({ users });
-        return this.sessionsRepository.save(session);
+        async closeSession(sessionId: number): Promise<void> {
+            const session = await this.sessionsRepository.findOne({ where: { id: sessionId } });
+            if (!session) throw new NotFoundException('Sesión no encontrada');
+        
+            session.closingDate = new Date();
+            await this.sessionsRepository.save(session);
         }
-    
-        async closeSession(sessionId: number) {
-        return this.sessionsRepository.update(sessionId, { closingDate: new Date() });
+        
+        async findAll(): Promise<Sessions[]> {
+            return this.sessionsRepository.find({ relations: ['users'] });
         }
     }
