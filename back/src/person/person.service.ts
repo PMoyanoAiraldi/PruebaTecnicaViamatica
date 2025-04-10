@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { Person } from "./person.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { QueryFailedError, Repository } from "typeorm";
@@ -99,8 +99,62 @@ async updatePerson(idPerson: number,updatePersonDto: UpdatePersonDto): Promise<P
             await this.personRepository.save({ ...person, ...updateData });
 
             return { ...person, ...updateData };
-
 }
+
+async updatePersonByAdmin(idPerson: number, dto: UpdatePersonDto): Promise<Person> {
+    const person = await this.personRepository.findOne({
+        where: { idPerson },
+        relations: ['users', 'users.rolesUsers', 'users.rolesUsers.rol'],
+    });
+
+    if (!person) throw new NotFoundException('Persona no encontrada');
+
+    const user = person.users?.[0]; //ya que una persona pued etenr varios usuarios se accede al primer usuario asociado
+    if (!user) throw new NotFoundException('No se encontró un usuario asociado');
+
+    const esAdmin = user.rolesUsers?.some(ru => ru.rol.rolName === 'Administrador');
+    if (esAdmin) throw new ForbiddenException('No puedes modificar a otro administrador');
+
+    const updated = { ...person, ...dto };
+
+    try {
+    return await this.personRepository.save(updated);
+    } catch (error) {
+    if (error.code === '23505') {
+        throw new ConflictException('Ya existe una persona con esa identificación');
+    }
+    throw error;
+    }
+}
+
+
+async searchPersonsAdmin(filters: {
+    names?: string;
+    surnames?: string;
+    identification?: string;
+    state?: boolean;
+}): Promise<Person[]> {
+    const query = this.personRepository.createQueryBuilder('person');
+
+    if (filters.names) {
+        query.andWhere('LOWER(person.names) LIKE LOWER(:names)', { names: `%${filters.names}%` });
+    }
+
+    if (filters.surnames) {
+        query.andWhere('LOWER(person.surnames) LIKE LOWER(:surnames)', { surnames: `%${filters.surnames}%` });
+    }
+
+    if (filters.identification) {
+        query.andWhere('person.identification = :identification', { identification: filters.identification });
+    }
+
+    if (filters.state !== undefined) {
+        query.andWhere('person.state = :state', { state: filters.state });
+    }
+
+    return query.getMany();
+}
+
 
 async patchPerson(idPerson: number, state: boolean): Promise<Person>{
     const person = await this.personRepository.findOne({ where: { idPerson } });

@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import {  ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LoginUserDto } from "src/users/dto/login-user.dto";
 import { AuthGuard } from "src/guard/auth.guard";
@@ -35,7 +35,7 @@ export class AuthController {
 
     @Post('logout')
     @UseGuards(AuthGuard)
-    @ApiBearerAuth('access-token')
+    @ApiSecurity('bearer')
     async logout(@Req() req: AuthenticatedRequest) {
         const userId = req.user?.id;
         if (typeof userId !== 'number') {

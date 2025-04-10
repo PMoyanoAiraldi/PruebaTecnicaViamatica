@@ -1,10 +1,14 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, ValidationPipe } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query, Req, UseGuards, ValidationPipe } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PersonService } from "./person.service";
 import { CreatePersonDto } from "./dto/create-person.dto";
 import { Person } from "./person.entity";
 import { UpdatePersonDto } from "./dto/update-person.dto";
 import { UpdateStateDto } from "./dto/updateState-person.dto";
+import { AuthGuard } from "src/guard/auth.guard";
+import { RolesGuard } from "src/guard/roles.guard";
+import { Roles } from "src/decorators/roles.decorators";
+import { SearchPersonDto } from "./dto/search-person.dto";
 
 @ApiTags("Person ")
 @Controller("person")
@@ -40,6 +44,15 @@ export class PersonController {
             };
         }
 
+
+    @Get('search')
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('Administrador')
+    @ApiBearerAuth()
+    searchPeople(@Query() filters: SearchPersonDto) {
+    return this.personService.searchPersonsAdmin(filters);
+    }
+
     @Get()
     @ApiOperation({ summary: 'Obtener todas las personas' })
     @ApiResponse({ status: 200, description: 'Personas obtenidas', type: [Person] })
@@ -74,6 +87,23 @@ export class PersonController {
             return await this.personService.updatePerson(id, updatePersonDto);
     
     }
+
+    
+
+    @Put('admin/:id')
+    @UseGuards(AuthGuard, RolesGuard) 
+    @Roles('Administrador') 
+    @ApiBearerAuth() 
+    async updatePersonByAdmin(@Param('id') id: number, @Req() req,
+    @Body(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    skipMissingProperties: true,
+    transform: true
+    })) updatePersonDto: UpdatePersonDto
+    ): Promise<Person> {
+    return await this.personService.updatePersonByAdmin(id, updatePersonDto);
+}
 
     @Patch(':id')
     @ApiOperation({ summary: 'Modificar el estado de una persona para activarla o desactivarla' })

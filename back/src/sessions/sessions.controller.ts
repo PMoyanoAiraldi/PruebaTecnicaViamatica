@@ -24,8 +24,8 @@ export class SessionsController {
     }
 
     @UseGuards(AuthGuard, RolesGuard)
-    @Roles('admin')
-    @ApiBearerAuth('access-token')
+    @Roles('Administrador')
+    @ApiBearerAuth()
     @Get('active/:userId')
     async getActiveSession(@Param('userId', ParseIntPipe) userId: number) {
         return this.sessionsService.getActiveSession(userId);

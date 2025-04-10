@@ -1,10 +1,19 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, ValidationPipe } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse,  ApiTags } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { User } from "./users.entity";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { UpdateStatusUserDto } from "./dto/updateState-user.dto";
+import { Roles } from "src/decorators/roles.decorators";
+import { AuthGuard } from "src/guard/auth.guard";
+import { RolesGuard } from "src/guard/roles.guard";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { diskStorage } from 'multer';
+import { extname } from 'path';
+import { Express } from 'express';
+import { Request } from 'express';
+import type { StorageEngine } from 'multer';
 
 @ApiTags("Users")
 @Controller("usuarios")
@@ -82,7 +91,10 @@ export class UsersController {
         return await this.usersService.updateUsers(id, updateUserDto);
         
     }
-    
+
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('Administrador')
+    @ApiBearerAuth()
     @Patch(':id')
     @ApiOperation({ summary: 'Modificar el estado de un usuario para activarlo o desactivarlo' })
     @ApiResponse({ status: 201, description: 'Estado del usuario modificado exitosamente', type: [User] })
@@ -96,5 +108,62 @@ export class UsersController {
     return this.usersService.patchUser(id, updateStatusDto.status);
     }
 
+    @Post('load-from-excel')
+    @UseGuards(AuthGuard, RolesGuard)
+    @ApiBearerAuth()
+    @Roles('Administrador')
+    @ApiOperation({ summary: 'Carga masiva de usuarios desde Excel (solo admin)' })
+    @UseInterceptors(
+        FileInterceptor('file', {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        storage: diskStorage({
+            destination: './uploads',
+            filename: (
+            req: Request,
+            file: Express.Multer.File,
+            cb: (error: Error | null, filename: string) => void
+        ) => {
+            const ext = extname(file.originalname);
+            const filename = `${Date.now()}${ext}`;
+            cb(null, filename);
+            },
+        }) as StorageEngine,
+        fileFilter: (
+            req: Request,
+            file: Express.Multer.File,
+            cb: (error: Error | null, acceptFile: boolean) => void
+        ) => {
+            if (!file.originalname.match(/\.(xlsx|csv)$/)) {
+                const error = new Error('Solo se permiten archivos Excel o CSV');
+              cb(error, false); // ✅ esto ahora no da error
+            } else {
+                cb(null, true);
+            }
+        }
+    }),
+    )
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({
+        schema: {
+        type: 'object',
+        properties: {
+            file: {
+            type: 'string',
+            format: 'binary',
+            },
+        },
+        },
+    })
+    async loadFromExcel(@UploadedFile() file: Express.Multer.File) {
+        if (!file) {
+        throw new Error('No se recibió ningún archivo.');
+        }
 
+        const { created, errors } = await this.usersService.loadUsersFromExcel(file.path);
+
+        return {
+            message: `Usuarios creados correctamente: ${created}`,
+            errores: errors,
+        };
+    }
 }

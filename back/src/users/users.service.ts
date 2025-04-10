@@ -6,6 +6,8 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import * as bcrypt from 'bcrypt';
 import { Person } from "src/person/person.entity";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import * as fs from 'fs';
+import * as XLSX from 'xlsx';
 
 @Injectable()
 export class UsersService {
@@ -131,4 +133,36 @@ async patchUser(idUser: number, status: string): Promise<User>{
         return user
     }
 
+    async loadUsersFromExcel(filePath: string): Promise<{ created: number; errors: string[] }> {
+        
+        const fileBuffer = fs.readFileSync(filePath);
+        const workbook = XLSX.read(fileBuffer, { type: 'buffer' });
+        const sheetName = workbook.SheetNames[0];
+        const data = XLSX.utils.sheet_to_json<CreateUserDto>(workbook.Sheets[sheetName]);
+    
+        const errors: string[] = [];
+        let created = 0;
+
+        for (const row of data) {
+          // Validar y crear cada usuario (puede ser con this.createUser(row))
+        try {
+            await this.createUser(row); // tu lógica de creación de usuario
+            created++;
+        } catch (error: unknown) {
+            if (error instanceof Error) {
+                console.error(`Error al crear usuario ${row.username}:`, error.message);
+                errors.push(`Error al crear usuario ${row.username}: ${error.message}`);
+            } else {
+                errors.push(`Error desconocido al crear usuario ${row.username}`);
+            }
+        }
+    
+        console.log('Usuarios cargados desde Excel.');
+    }
+    return {
+        created,
+        errors,
+    };
+
+    }
 }
