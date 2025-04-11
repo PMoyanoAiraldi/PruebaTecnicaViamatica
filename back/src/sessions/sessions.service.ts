@@ -42,4 +42,14 @@ export class SessionsService {
         async findAll(): Promise<Sessions[]> {
             return this.sessionsRepository.find({ relations: ['users'] });
         }
+
+        async getSessionForId(sessionId: number): Promise<Sessions> {
+            const session = await this.sessionsRepository.findOne({ where: { id: sessionId } });
+        
+            if (!session) {
+                throw new NotFoundException(`Session con ID ${sessionId} no encontrada`);
+            }
+        
+            return session;
+        }
     }

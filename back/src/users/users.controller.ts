@@ -12,8 +12,8 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Express } from 'express';
-import { Request } from 'express';
-import type { StorageEngine } from 'multer';
+
+
 
 @ApiTags("Users")
 @Controller("usuarios")
@@ -52,9 +52,16 @@ export class UsersController {
     @ApiOperation({ summary: 'Obtener usuario por ID' })
     @ApiResponse({ status: 200, description: 'Usuario obtenido', type: User })
     @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-    async getUser(@Param('id') id: number): Promise<User>{
+    async getUser(@Param('id') id: number){
         const user = await this.usersService.getUserForId(id)
-        return user
+        const role = user.rolesUsers?.[0]?.rol?.rolName || 'USER';
+
+        return {
+            idUser: user.idUser,
+            username: user.username,
+            email: user.email,
+            role,
+        }
     }
 
     @Get()
@@ -115,27 +122,17 @@ export class UsersController {
     @ApiOperation({ summary: 'Carga masiva de usuarios desde Excel (solo admin)' })
     @UseInterceptors(
         FileInterceptor('file', {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         storage: diskStorage({
             destination: './uploads',
-            filename: (
-            req: Request,
-            file: Express.Multer.File,
-            cb: (error: Error | null, filename: string) => void
-        ) => {
-            const ext = extname(file.originalname);
-            const filename = `${Date.now()}${ext}`;
-            cb(null, filename);
-            },
-        }) as StorageEngine,
-        fileFilter: (
-            req: Request,
-            file: Express.Multer.File,
-            cb: (error: Error | null, acceptFile: boolean) => void
-        ) => {
+            filename: (req,file,cb)  => {
+                const ext = extname(file.originalname);
+                const filename = `${Date.now()}${ext}`;
+                cb(null, filename);
+                },
+            }),
+        fileFilter: (req, file, cb)  => {
             if (!file.originalname.match(/\.(xlsx|csv)$/)) {
-                const error = new Error('Solo se permiten archivos Excel o CSV');
-              cb(error, false); // ✅ esto ahora no da error
+                cb(new Error('Solo se permiten archivos Excel o CSV'), false);
             } else {
                 cb(null, true);
             }

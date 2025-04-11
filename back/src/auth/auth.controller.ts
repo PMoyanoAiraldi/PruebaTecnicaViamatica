@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Post, Put, Req, UseGuards } from "@nestjs/common";
 import {  ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from "@nestjs/swagger";
 import { AuthService } from "./auth.service";
 import { LoginUserDto } from "src/users/dto/login-user.dto";
 import { AuthGuard } from "src/guard/auth.guard";
 import { Request } from 'express';
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 
 
 export interface AuthenticatedRequest extends Request {
@@ -44,4 +45,9 @@ export class AuthController {
 
         return this.authService.logout(userId);
 }
+    @Put('reset-password')
+    async resetPassword(@Body() resetDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetDto);
+    }
+
 }

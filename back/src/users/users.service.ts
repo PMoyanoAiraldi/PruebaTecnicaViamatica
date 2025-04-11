@@ -51,7 +51,7 @@ async createUser(createUserDto: CreateUserDto): Promise<User> {
     if (typeof createUserDto.password !== 'string') {
         throw new Error("Contraseña inválida");
     }
-// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const newUser = this.usersRepository.create({ ...createUserDto, password: hashedPassword, email, person});
@@ -59,7 +59,13 @@ async createUser(createUserDto: CreateUserDto): Promise<User> {
 }
 
 async getUserForId(idUser: number): Promise<User> {
-    const user = await this.usersRepository.findOne({ where: { idUser } });
+    if (!idUser || idUser <= 0) {
+        throw new BadRequestException('El ID del usuario debe ser un número positivo');
+    }
+    const user = await this.usersRepository.findOne({
+        where: { idUser: idUser },
+        relations: ['rolesUsers', 'rolesUsers.rol'],
+    });
 
     if (!user) {
         throw new NotFoundException(`Usuario con ID ${idUser} no encontrado`);
@@ -144,9 +150,8 @@ async patchUser(idUser: number, status: string): Promise<User>{
         let created = 0;
 
         for (const row of data) {
-          // Validar y crear cada usuario (puede ser con this.createUser(row))
         try {
-            await this.createUser(row); // tu lógica de creación de usuario
+            await this.createUser(row); 
             created++;
         } catch (error: unknown) {
             if (error instanceof Error) {

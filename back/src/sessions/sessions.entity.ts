@@ -6,7 +6,7 @@ export class Sessions {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ type: 'date' })
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     entryDate: Date;
 
     @Column({ type: 'date', nullable: true })

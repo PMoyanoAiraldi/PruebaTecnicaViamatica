@@ -30,4 +30,14 @@ export class SessionsController {
     async getActiveSession(@Param('userId', ParseIntPipe) userId: number) {
         return this.sessionsService.getActiveSession(userId);
     }
+
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('Administrador')
+    @ApiBearerAuth()   
+    @Get(':id')
+    async getSessionId(@Param('id', ParseIntPipe) id: number){
+        return await this.sessionsService.getSessionForId(id)
+    }
+
+
 }

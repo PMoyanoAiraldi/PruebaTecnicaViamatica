@@ -4,6 +4,10 @@ import { SessionsService } from "src/sessions/sessions.service";
 import { UsersService } from "src/users/users.service";
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from "src/users/dto/login-user.dto";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "src/users/users.entity";
+import { Repository } from "typeorm";
+import { ResetPasswordDto } from "./dto/reset-password.dto";
 
 @Injectable()
 export class AuthService {
@@ -11,9 +15,12 @@ export class AuthService {
         private usersService: UsersService,
         private jwtService: JwtService,
         private sessionsService: SessionsService,
+        @InjectRepository(User)
+        private readonly usersRepository: Repository<User>,
     ) {}
 
     async login(loginDto: LoginUserDto) {
+        console.log("Intentando login con:", loginDto);
         const { identifier, password } = loginDto;
     
         const user = await this.usersService.findByUsernameOrEmail(identifier);
@@ -47,16 +54,19 @@ export class AuthService {
             ? user.rolesUsers[0].rol.rolName
             : 'USER';
 
-
         // Generar JWT
-        const payload: { sub: number; role: string } = { 
-            sub: user.idUser,  
-            role, 
+        const payload: { sub: number; role: string;  email:string} = { 
+            sub: user.idUser, 
+            email: user.email,
+            role,
         };
         return {
             access_token: this.jwtService.sign(payload),
+            id:user.idUser,
             message: 'Inicio de sesión exitoso',
         };
+
+        
     }
     
     async logout(userId: number) {
@@ -65,4 +75,28 @@ export class AuthService {
         await this.sessionsService.closeSession(session.id);
         return { message: 'Sesión cerrada correctamente' };
     }
+
+
+    async resetPassword(resetDto: ResetPasswordDto): Promise<{ message: string }> {
+        const { identifier, password } = resetDto;
+    
+        const user = await this.usersRepository.findOne({
+            where: [
+                { email: identifier },
+                { username: identifier },
+            ],
+            });
+        
+            if (!user) {
+            throw new NotFoundException('Usuario no encontrado');
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const hashedPassword = await bcrypt.hash(password, 10);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        await this.usersRepository.update(user.idUser, { password: hashedPassword });
+    
+        return { message: 'Contraseña actualizada con éxito' };
     }
+
+}
