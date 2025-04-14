@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch, Post, Put, Query, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiResponse,  ApiTags } from "@nestjs/swagger";
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -12,6 +12,7 @@ import { FileInterceptor } from "@nestjs/platform-express";
 import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { Express } from 'express';
+import { SearchPersonDto } from "src/person/dto/search-person.dto";
 
 
 
@@ -48,6 +49,34 @@ export class UsersController {
         };
     }
 
+    @Get('admin')
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('Administrador')
+    @ApiBearerAuth()
+    @ApiOperation({ summary: 'Obtener todos los usuarios con datos de persona y roles' })
+    @HttpCode(HttpStatus.OK)
+    async getUsersWithDetails(): Promise<User[]> {
+    return await this.usersService.getUsersWithDetails(); // Esto incluye Person y Roles
+    }
+
+
+    @Get('search')
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('Administrador')
+    @ApiBearerAuth()
+    searchUsers(@Query() filters: SearchPersonDto) {
+    return this.usersService.searchUsersByPersonData(filters);
+    }
+    
+    @Get()
+    @ApiOperation({ summary: 'Obtener todos los usuarios' })
+    @ApiResponse({ status: 200, description: 'Usuarios obtenidos', type: [User] })
+    @HttpCode(HttpStatus.OK)
+    async getUsers(){
+        const users = await this.usersService.getUsers()
+        return users
+    }
+
     @Get(':id')
     @ApiOperation({ summary: 'Obtener usuario por ID' })
     @ApiResponse({ status: 200, description: 'Usuario obtenido', type: User })
@@ -64,15 +93,9 @@ export class UsersController {
         }
     }
 
-    @Get()
-    @ApiOperation({ summary: 'Obtener todos los usuarios' })
-    @ApiResponse({ status: 200, description: 'Usuarios obtenidos', type: [User] })
-    @HttpCode(HttpStatus.OK)
-    async getUsers(){
-        const users = await this.usersService.getUsers()
-        return users
-    }
+    
 
+    
     @Put(':id')
     @ApiOperation({ summary: 'Actualizar un usuario por ID' })
     @ApiResponse({ status: 200, description: 'Usuario actualizado', type: UpdateUserDto})
@@ -115,7 +138,7 @@ export class UsersController {
     return this.usersService.patchUser(id, updateStatusDto.status);
     }
 
-    @Post('load-from-excel')
+    @Post('uploadExcel')
     @UseGuards(AuthGuard, RolesGuard)
     @ApiBearerAuth()
     @Roles('Administrador')

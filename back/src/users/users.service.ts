@@ -8,6 +8,8 @@ import { Person } from "src/person/person.entity";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import * as fs from 'fs';
 import * as XLSX from 'xlsx';
+import { Rol } from "src/rol/rol.entity";
+import { RolUsers } from "src/rol_users/rol_users.entity";
 
 @Injectable()
 export class UsersService {
@@ -16,7 +18,13 @@ export class UsersService {
         private readonly usersRepository: Repository<User>,
 
         @InjectRepository(Person)
-        private readonly personRepository: Repository<Person>
+        private readonly personRepository: Repository<Person>,
+
+        @InjectRepository(Rol)
+        private rolRepository: Repository<Rol>,
+        
+        @InjectRepository(RolUsers)
+        private rolUsersRepository: Repository<RolUsers>,
     
     ) { }
 
@@ -55,7 +63,25 @@ async createUser(createUserDto: CreateUserDto): Promise<User> {
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const newUser = this.usersRepository.create({ ...createUserDto, password: hashedPassword, email, person});
-    return this.usersRepository.save(newUser);
+
+    const savedUser = await this.usersRepository.save(newUser);
+
+    
+    const defaultRole = await this.rolRepository.findOne({ where: { rolName: 'Usuario' } });
+    if (!defaultRole) {
+        throw new NotFoundException("No se encontró el rol 'Usuario'");
+    }
+
+    const userRole = this.rolUsersRepository.create({
+        user: savedUser,
+        rol: defaultRole,
+        state: true
+    });
+
+    await this.rolUsersRepository.save(userRole);
+
+    return savedUser;
+
 }
 
 async getUserForId(idUser: number): Promise<User> {
@@ -105,7 +131,48 @@ async getUsers(): Promise<User[]>{
     const users =  await this.usersRepository.find()
     return users
 }
+    
+async getUsersWithDetails(): Promise<User[]> {
+        return await this.usersRepository.find({
+            relations: ['person', 'rolesUsers', 'rolesUsers.rol'],
+        });
+    }
 
+
+        async searchUsersByPersonData(filters: {
+            names?: string;
+            surnames?: string;
+            identification?: string;
+            state?: boolean;
+        }): Promise<User[]> {
+            const query = this.usersRepository
+            .createQueryBuilder('user')
+            .leftJoinAndSelect('user.person', 'person'); // Relación con persona
+        
+            if (filters.names) {
+            query.andWhere('LOWER(person.names) LIKE LOWER(:names)', {
+                names: `%${filters.names}%`,
+            });
+            }
+        
+            if (filters.surnames) {
+            query.andWhere('LOWER(person.surnames) LIKE LOWER(:surnames)', {
+                surnames: `%${filters.surnames}%`,
+            });
+            }
+        
+            if (filters.identification) {
+            query.andWhere('person.identification = :identification', {
+                identification: filters.identification,
+            });
+            }
+        
+            if (filters.state !== undefined) {
+            query.andWhere('user.status = :status', { status: filters.state ? 'activo' : 'inactivo' });
+            }
+        
+            return await query.getMany();
+        }
 async updateUsers(idUser: number,updateUserDto: UpdateUserDto): Promise<User>{
     const user = await this.usersRepository.findOne({ where: { idUser } });
     if (!user) {

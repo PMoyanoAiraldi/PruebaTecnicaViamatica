@@ -5,11 +5,13 @@ import { QueryFailedError, Repository } from "typeorm";
 import { CreatePersonDto } from "./dto/create-person.dto";
 import { UpdatePersonDto } from "./dto/update-person.dto";
 
+
 @Injectable()
 export class PersonService {
     constructor(
         @InjectRepository(Person)
         private readonly personRepository: Repository<Person>,
+
             
     ) { }
 
@@ -134,7 +136,9 @@ async searchPersonsAdmin(filters: {
     identification?: string;
     state?: boolean;
 }): Promise<Person[]> {
-    const query = this.personRepository.createQueryBuilder('person');
+    const query = this.personRepository
+    .createQueryBuilder('person')
+
 
     if (filters.names) {
         query.andWhere('LOWER(person.names) LIKE LOWER(:names)', { names: `%${filters.names}%` });
@@ -149,7 +153,7 @@ async searchPersonsAdmin(filters: {
     }
 
     if (filters.state !== undefined) {
-        query.andWhere('person.state = :state', { state: filters.state });
+        query.andWhere('user.status = :status', { status: filters.state ? 'activo' : 'inactivo' });
     }
 
     return query.getMany();

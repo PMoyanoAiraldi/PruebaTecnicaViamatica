@@ -54,6 +54,9 @@ export class PersonController {
     }
 
     @Get()
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('Administrador')
+    @ApiBearerAuth()
     @ApiOperation({ summary: 'Obtener todas las personas' })
     @ApiResponse({ status: 200, description: 'Personas obtenidas', type: [Person] })
     @HttpCode(HttpStatus.OK)

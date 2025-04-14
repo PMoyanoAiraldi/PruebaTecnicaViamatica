@@ -54,7 +54,7 @@ export default function WelcomeScreen() {
             {session.closingDate && (
             <p><strong>Último cierre de sesión:</strong> {new Date(session.closingDate).toLocaleString()}</p>
             )}
-            <p><strong>Intentos fallidos:</strong> {session.failedAttempts || 0}</p>
+            <p><strong>Intentos fallidos:</strong> {user.failedAttempts || 0}</p>
         </div>
 
         <div className={styles.buttons}>

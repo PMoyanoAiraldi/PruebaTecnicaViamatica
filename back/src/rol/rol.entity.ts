@@ -7,7 +7,7 @@ export class Rol {
     @PrimaryGeneratedColumn()
     idRol: number;
 
-    @Column({ length: 50, unique: true })
+    @Column({ length: 50, unique: true, default: "Usuario" })
     rolName: string;
 
     @OneToMany(() => RolUsers, (rolUsuarios) => rolUsuarios.rol)

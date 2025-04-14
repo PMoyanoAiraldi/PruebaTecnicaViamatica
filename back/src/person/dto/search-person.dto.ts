@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsDate, IsOptional, IsString, Length, MaxLength, } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsOptional, IsString, Length, MaxLength, } from "class-validator";
 
 export class SearchPersonDto {
     @ApiProperty({ type: String, example: 'Marcelo', required: false })
@@ -22,11 +22,13 @@ export class SearchPersonDto {
     @Length(10, 10, { message: 'La identificación debe tener exactamente 10 dígitos.' })
     identification?: string;
 
+    @ApiProperty({
+        description: 'Indica si el usuario está habilitado (true) o deshabilitado (false)',
+        example: true, 
+        required: false 
+    })
     @IsOptional()
-    @ApiProperty({ type: String, format: 'date', required: false })
-    @Type(() => Date)
-    @IsDate({ message: 'La fecha debe tener formato válido (YYYY-MM-DD)' })
-    dateBirth?: Date;
-
+    @Transform(({ value }) => value === 'true')
+    state?: boolean;
 
 }
