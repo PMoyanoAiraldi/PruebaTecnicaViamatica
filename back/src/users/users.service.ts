@@ -88,11 +88,18 @@ async getUserForId(idUser: number): Promise<User> {
     if (!idUser || idUser <= 0) {
         throw new BadRequestException('El ID del usuario debe ser un número positivo');
     }
-    const user = await this.usersRepository.findOne({
-        where: { idUser: idUser },
-        relations: ['rolesUsers', 'rolesUsers.rol'],
-    });
+    // const user = await this.usersRepository.findOne({
+    //     where: { idUser: idUser },
+    //     relations: ['rolesUsers', 'rolesUsers.rol', 'person'],
+    // });
 
+    const user = await this.usersRepository
+    .createQueryBuilder('user')
+    .leftJoinAndSelect('user.person', 'person') // Asegúrate de que la relación person esté siendo unida correctamente
+    .leftJoinAndSelect('user.rolesUsers', 'rolesUsers')
+    .leftJoinAndSelect('rolesUsers.rol', 'rol')
+    .where('user.idUser = :idUser', { idUser })
+    .getOne();
     if (!user) {
         throw new NotFoundException(`Usuario con ID ${idUser} no encontrado`);
     }
@@ -143,7 +150,7 @@ async getUsersWithDetails(): Promise<User[]> {
             names?: string;
             surnames?: string;
             identification?: string;
-            state?: boolean;
+            state?: string;
         }): Promise<User[]> {
             const query = this.usersRepository
             .createQueryBuilder('user')
@@ -167,8 +174,8 @@ async getUsersWithDetails(): Promise<User[]> {
             });
             }
         
-            if (filters.state !== undefined) {
-            query.andWhere('user.status = :status', { status: filters.state ? 'activo' : 'inactivo' });
+            if (filters.state) {
+            query.andWhere('user.status = :status', { status: filters.state });
             }
         
             return await query.getMany();
@@ -237,4 +244,21 @@ async patchUser(idUser: number, status: string): Promise<User>{
     };
 
     }
+
+
+    async getDashboardStats() {
+            const users = await this.usersRepository.find();
+        
+            const activos = users.filter(u => u.status === 'activo').length;
+            const inactivos = users.filter(u => u.status === 'inactivo').length;
+            const bloqueados = users.filter(u => u.status === 'bloqueado').length;
+            const fallidos = users.reduce((acc, user) => acc + (user.failedAttempts || 0), 0);
+        
+            return {
+            activos,
+            inactivos,
+            bloqueados,
+            fallidos,
+            };
+        }
 }

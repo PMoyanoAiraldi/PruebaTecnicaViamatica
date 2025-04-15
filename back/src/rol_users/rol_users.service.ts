@@ -102,5 +102,24 @@ export class RolUsersService {
                     
         return rolUsers
 }        
+async upsertRolUser(userId: number, rolId: number): Promise<RolUsers> {
+    
+    const existingRelation = await this.rolUsersRepository.findOne({
+        where: { user: { idUser: userId }, rol: { idRol: rolId } },
+        relations: ['user', 'rol'], 
+    });
 
+    if (existingRelation) {
+        existingRelation.rol = { idRol: rolId } as Rol; 
+        return await this.rolUsersRepository.save(existingRelation);
+    }
+
+
+    const newRelation = this.rolUsersRepository.create({
+        user: { idUser: userId } as User,
+        rol: { idRol: rolId } as Rol, 
+    });
+
+    return await this.rolUsersRepository.save(newRelation);
+    }
 }

@@ -1,6 +1,9 @@
     import React, { useEffect, useState } from 'react';
     import axios from 'axios';
     import styles from './UserMaintenance.module.css';
+    import { useNavigate } from 'react-router-dom';
+    import Swal from "sweetalert2";
+    import { FaUpload } from "react-icons/fa";
 
     const UserMaintenance = () => {
     const [users, setUsers] = useState([]);
@@ -10,6 +13,8 @@
         identification: '',
         status: '',
     });
+    const navigate = useNavigate();
+    const [file, setFile] = useState(null);
 
     const fetchUsers = async () => {
         try {
@@ -30,7 +35,13 @@
         try {
         const token = localStorage.getItem('token'); 
 
-        const newStatus = currentStatus === 'activo' ? 'inactivo' : 'activo';
+        let newStatus;
+            if (currentStatus === 'activo') {
+            newStatus = 'inactivo';
+            } else {
+            newStatus = 'activo'; 
+            }
+
 
         const response =  await axios.patch(`http://localhost:3010/usuarios/${idUser}`,{status: newStatus},{
             headers: {
@@ -62,7 +73,7 @@
                     ...(search.names && { names: search.names }),
                     ...(search.surnames && { surnames: search.surnames }),
                     ...(search.identification && { identification: search.identification }),
-                    ...(search.status && { state: search.status === 'activo' })
+                    ...(search.status && { state: search.status})
                 },
                 });
             
@@ -76,20 +87,56 @@
     useEffect(() => {
         fetchUsers();
     }, []);
-
-        const updatePerson = async (idPerson, updatedData) => {
-            try {
-            const token = localStorage.getItem('token');
-            const response = await axios.put(`http://localhost:3010/personas/admin/${idPerson}`, updatedData, {
+    const handleFileUpload = async () => {
+        if (!file) {
+            Swal.fire({
+            icon: 'warning',
+            title: 'Sin archivo seleccionado',
+            text: 'Por favor seleccioná un archivo para continuar.',
+            });
+            return;
+        }
+    
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('file', file);
+    
+        try {
+            const response = await axios.post(
+            'http://localhost:3010/usuarios/uploadExcel',
+            formData,
+            {
                 headers: {
                 Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
                 },
-            });
-            console.log("Persona actualizada:", response.data);
-            } catch (error) {
-            console.error("Error al actualizar persona:", error);
             }
-        };
+        );
+    
+        const { message, errores } = response.data;
+    
+        Swal.fire({
+            icon: errores.length === 0 ? 'success' : 'warning',
+            title: 'Carga finalizada',
+            html: `
+                <p><strong>${message}</strong></p>
+                ${errores.length > 0 ? `<p>Errores encontrados:</p><ul style="text-align:left">${errores.map(e => `<li>${e}</li>`).join('')}</ul>` : ''}
+            `,
+            width: 600,
+            confirmButtonText: 'Aceptar',
+        });
+    
+          fetchUsers(); // actualiza la lista
+        } catch (error) {
+            console.error('Error al subir el archivo:', error);
+            Swal.fire({
+            icon: 'error',
+            title: 'Error al cargar el archivo',
+            text: 'Hubo un problema al procesar el archivo. Intentalo de nuevo.',
+        });
+        }
+    };
+        
 
     return (
         <div className={styles.container}>
@@ -125,11 +172,29 @@
             <option value="">Todos</option>
             <option value="activo">Activo</option>
             <option value="inactivo">Inactivo</option>
+            <option value="bloqueado">Bloqueado</option>
         </select>
         <button className={styles.button} onClick={handleSearch}>
             Buscar
         </button>
         </div>
+
+        
+        
+        <div className={styles.uploadRow}>
+        <input
+            type="file"
+            accept=".xlsx, .csv"
+            onChange={(e) => setFile(e.target.files[0])}
+            id="fileUpload"
+            className={styles.fileInput}
+        />
+        <button className={styles.button} onClick={handleFileUpload}>
+        <FaUpload style={{ marginRight: '0.5rem' }} />
+            Subir Archivo
+        </button>
+        </div>
+
 
 
         <table className={styles.table}>
@@ -168,7 +233,7 @@
                         </button>
                         <button
                         className={`${styles.button} ${styles.editButton}`}
-                        onClick={() => updatePerson(user.id)}
+                        onClick={() => navigate(`/user-edit/${user.person?.idPerson}`)}
                         >
                         Editar
                         </button>

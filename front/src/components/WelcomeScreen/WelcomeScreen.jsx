@@ -42,8 +42,15 @@ export default function WelcomeScreen() {
         fetchData();
     }, []);
 
+
+    const idPerson = JSON.parse(localStorage.getItem('user'))?.person?.idPerson;
+    if (idPerson) {
+    navigate(`/editar-perfil/${user.idUser}`);
+    }
     if (!user || !session) return <div className={styles.loading}>Cargando...</div>;
 
+
+    console.log(user)
     return (
         <div className={styles.container}>
         <h1 className={styles.title}>👋 Bienvenido/a, {user.username}</h1>
@@ -63,7 +70,16 @@ export default function WelcomeScreen() {
                         Mantenimiento de usuarios
                     </button>
                 ) : (
-                    <button className={styles.button} onClick={() => navigate('/editar-perfil')}>
+                    
+                    <button className={styles.button} onClick={() => {
+                        console.log("user:", user); 
+                if (user) {
+                    console.log("user?.person?.idPerson", user?.person?.idPerson)
+                navigate(`/editar-perfil/${user.idUser}`);
+                } else {
+                alert('No se pudo obtener el ID de la persona');
+                }
+            }}>
                         Editar mi perfil
                     </button>
                 )}

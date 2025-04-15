@@ -90,6 +90,9 @@ export class UsersController {
             username: user.username,
             email: user.email,
             role,
+            failedAttempts: user.failedAttempts,
+            person: user.person
+            
         }
     }
 
@@ -185,5 +188,14 @@ export class UsersController {
             message: `Usuarios creados correctamente: ${created}`,
             errores: errors,
         };
+    }
+
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles('Administrador')
+    @ApiBearerAuth()
+    @Get('dashboard/stats')
+    @ApiOperation({ summary: 'Estadísticas para el Dashboard' })
+    async getDashboardStats() {
+    return this.usersService.getDashboardStats();
     }
 }

@@ -134,7 +134,7 @@ async searchPersonsAdmin(filters: {
     names?: string;
     surnames?: string;
     identification?: string;
-    state?: boolean;
+    state?: string;
 }): Promise<Person[]> {
     const query = this.personRepository
     .createQueryBuilder('person')
@@ -152,8 +152,8 @@ async searchPersonsAdmin(filters: {
         query.andWhere('person.identification = :identification', { identification: filters.identification });
     }
 
-    if (filters.state !== undefined) {
-        query.andWhere('user.status = :status', { status: filters.state ? 'activo' : 'inactivo' });
+    if (filters.state ) {
+        query.andWhere('user.status = :status', { status: filters.state  });
     }
 
     return query.getMany();

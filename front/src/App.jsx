@@ -7,6 +7,7 @@ import RecoverPassword from './components/RecoverPassword/RecoverPassword'
 import WelcomeScreen from './components/WelcomeScreen/WelcomeScreen';
 import UserMaintenance from './components/UserMaintenance/UserMaintenance';
 import EditUserForm from './components/EditUserForm.jsx/EditUserForm';
+import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
   
@@ -18,7 +19,9 @@ function App() {
       <Route path='/recover' element={<RecoverPassword/>}/>
       <Route path='/welcome' element={<WelcomeScreen/>}/>
       <Route path='/user-maintenance' element={<UserMaintenance/>}/>
-      <Route path='/user-edit' element={<EditUserForm/>}/>
+      <Route path='/user-edit/:idPerson' element={<EditUserForm/>}/>
+      <Route path='/editar-perfil/:idPerson' element={<EditUserForm/>}/>
+      <Route path='/dashboard' element={<Dashboard/>}/>
 
       </Routes>
     </>

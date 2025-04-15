@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Transform } from "class-transformer";
 import { IsOptional, IsString, Length, MaxLength, } from "class-validator";
 
 export class SearchPersonDto {
@@ -28,7 +27,7 @@ export class SearchPersonDto {
         required: false 
     })
     @IsOptional()
-    @Transform(({ value }) => value === 'true')
-    state?: boolean;
+    
+    state?: string;
 
 }

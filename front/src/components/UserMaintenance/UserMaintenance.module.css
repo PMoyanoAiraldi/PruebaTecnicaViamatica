@@ -52,3 +52,51 @@
     .editButton:hover {
         background-color: #206db0;
     }
+
+    .uploadControls {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .uploadControls input[type="file"] {
+        flex: 1;
+        font-size: 0.9rem;
+    }
+    
+    .uploadControls button {
+        white-space: nowrap;
+    }
+
+    .uploadRow {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+    
+    .fileInput {
+        border: 1px solid #ccc;
+        padding: 6px 12px;
+        cursor: pointer;
+        font-size: 0.9rem;
+    }
+    
+    .uploadButton {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        transition: background-color 0.2s ease-in-out;
+    }
+    
+    .uploadButton:hover {
+        background-color: #b02a37;
+    }

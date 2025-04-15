@@ -44,10 +44,10 @@ const Login = () =>{
         identifier: '',
         password: ''
     });
-    const handleChange = (e) => { //a la funcion le debemos pasar un evento
-        setInput({ //es una promesa
-            ...input, //trae todo lo que esta en input
-            [e.target.name]:e.target.value //de los cambios que haya en username o password trae el valor, identificamos los campos por name
+    const handleChange = (e) => { 
+        setInput({ 
+            ...input, 
+            [e.target.name]:e.target.value 
         })
 
     }
@@ -62,12 +62,12 @@ const Login = () =>{
         placeholder="Usernam1 o example@mail.com" 
         onChange={handleChange} 
         value={input.identifier}/>
-        </div> {/*los input tienen la propiedad onChange, que se ejcuta cada vez que hay un cambio, se ejecuta por cada caracter que ingrese al input  */}
+        </div> 
         <div>
         <input className={styles.input} type="password" name="password" id="password"
         placeholder="Contraseña" 
         onChange={handleChange} 
-        value={input.password}/>{/*el value indica el estado inicial de cada campo antes del cambio, enlazamos el estado con el valor */}
+        value={input.password}/>
         </div>
         {isButtonDisabled && (
             <p className={styles.error}>Debes completar todos los campos</p>
