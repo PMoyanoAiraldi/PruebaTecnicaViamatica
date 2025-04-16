@@ -5,6 +5,7 @@ const initialState = {
     id: null,
     entryDate: null,
     closingDate: null,
+    userId: null
     },
 }
 

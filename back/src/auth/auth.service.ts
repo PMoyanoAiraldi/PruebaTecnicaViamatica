@@ -20,7 +20,7 @@ export class AuthService {
     ) {}
 
     async login(loginDto: LoginUserDto) {
-        console.log("Intentando login con:", loginDto);
+        
         const { identifier, password } = loginDto;
     
         const user = await this.usersService.findByUsernameOrEmail(identifier);
@@ -63,6 +63,8 @@ export class AuthService {
         return {
             access_token: this.jwtService.sign(payload),
             id:user.idUser,
+            email: user.email,
+            role: user.rolesUsers,
             message: 'Inicio de sesión exitoso',
         };
 

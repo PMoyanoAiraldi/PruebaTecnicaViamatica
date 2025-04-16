@@ -31,7 +31,15 @@ export class AuthController {
             },
 })
     async login(@Body() loginDto: LoginUserDto) {
-        return this.authService.login(loginDto);
+        const user = await this.authService.login(loginDto);
+    
+        // Aquí asumes que el `authService.login` devuelve el usuario completo, o puedes agregarlo si es necesario.
+        return {
+            access_token: user.access_token,
+            id: user.id,
+            role: user.role,  
+            email: user.email,  // Puedes agregar más detalles si es necesario
+        };
     }
 
     @Post('logout')

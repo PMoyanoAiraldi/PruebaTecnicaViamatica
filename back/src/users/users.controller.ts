@@ -41,8 +41,7 @@ export class UsersController {
         },
     })
     async crearUsuario(@Body() createUser: CreateUserDto) {
-        createUser.username = createUser.username.trim();  // ✨ Elimina espacios
-    console.log(`"${createUser.username}"`, createUser.username.length); // 🔍 Verifica la longitud
+        createUser.username = createUser.username.trim();  
         const user = await this.usersService.createUser(createUser)
         return {
             message: `Usuario creado exitosamente`, user

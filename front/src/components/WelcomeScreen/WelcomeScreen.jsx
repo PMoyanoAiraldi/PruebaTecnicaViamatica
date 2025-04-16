@@ -32,8 +32,7 @@ export default function WelcomeScreen() {
 
             setUser(userRes.data);
             setSession(sessionRes.data);
-            console.log('USER:', userRes.data);
-            console.log('SESSION:', sessionRes.data);
+        
         } catch (error) {
             console.error('Error al cargar los datos:', error);
         }
@@ -50,7 +49,7 @@ export default function WelcomeScreen() {
     if (!user || !session) return <div className={styles.loading}>Cargando...</div>;
 
 
-    console.log(user)
+    
     return (
         <div className={styles.container}>
         <h1 className={styles.title}>👋 Bienvenido/a, {user.username}</h1>
@@ -72,9 +71,9 @@ export default function WelcomeScreen() {
                 ) : (
                     
                     <button className={styles.button} onClick={() => {
-                        console.log("user:", user); 
+                        
                 if (user) {
-                    console.log("user?.person?.idPerson", user?.person?.idPerson)
+                    
                 navigate(`/editar-perfil/${user.idUser}`);
                 } else {
                 alert('No se pudo obtener el ID de la persona');

@@ -2,20 +2,24 @@
     max-width: 600px;
     margin: 50px auto;
     padding: 24px;
-    background-color: #f9f9f9;
+    background-color: rgba(0, 0, 0, 0.7);
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
     
     .title {
-        font-size: 26px;
-        color: #2c2c2c;
+        color: white;
+        font-size: 32px;
+        font-weight: bold;
+        text-align: center;
         margin-bottom: 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
     }
     
     .info p {
         font-size: 16px;
-        color: #444;
+        color: #b1adad;
         margin-bottom: 10px;
     }
     
@@ -26,22 +30,26 @@
         color: #777;
     }
     .button {
-        margin-top: 1rem;
-        padding: 0.5rem 1rem;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 1rem;
+        background-color: rgb(63, 97, 136);
+        font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+        color: white; 
+        border: 2px solid rgb(63, 97, 136);
+        border-radius: 10px;
+        padding: 5px 5px; 
+        font-size: 20px;
+        cursor: pointer; 
+        transition: background-color 0.3s, color 0.3s, border-color 0.3s; 
+        margin: 20px auto 0 auto; /* Centrado horizontal */
+        display: block;
     }
-    
     .button:hover {
-        background-color: #0056b3;
+        background-color: white; 
+        color: rgb(63, 97, 136); 
     }
     
-    .buttons {
-        margin-top: 2rem;
-        display: flex;
-        justify-content: center;
-    }
+    .button:active {
+        background-color: white; 
+        color: rgb(63, 97, 136); 
+        border-color: rgb(63, 97, 136); 
+    } 
+    

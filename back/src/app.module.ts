@@ -12,6 +12,7 @@ import { RolUsersModule } from './rol_users/rol_users.module';
 import { SessionsModule} from './sessions/sessions.module';
 import { PersonModule } from './person/person.module';
 import { AuthModule } from './auth/auth.module';
+import { MenuModule } from './menuItem/menu-item.module';
 
 @Module({
   imports: [
@@ -33,7 +34,8 @@ import { AuthModule } from './auth/auth.module';
     RolUsersModule,
     SessionsModule,
     PersonModule, 
-    AuthModule
+    AuthModule, 
+    MenuModule
 
     
   ],

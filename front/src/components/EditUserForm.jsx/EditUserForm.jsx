@@ -33,7 +33,10 @@ const EditUserForm = () => {
                 }),
                 ]);
 
-                if (userRes.data.person.idPerson !== parseInt(idPerson)) {
+                
+                const isAdmin = userRes.data.role === 'Administrador';
+
+                if (userRes.data.person.idPerson !== parseInt(idPerson) && !isAdmin) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Acceso denegado',
@@ -77,7 +80,11 @@ const EditUserForm = () => {
         try {
         const token = localStorage.getItem('token');
         const user = JSON.parse(localStorage.getItem('user')); 
-        const isAdmin = user?.role === 'Administrador';
+        
+        const isAdmin = user?.role?.[0]?.rol?.rolName === 'Administrador';
+
+    
+
         const url = isAdmin
             ? `http://localhost:3010/person/admin/${idPerson}`
             : `http://localhost:3010/person/${idPerson}`;
@@ -92,10 +99,12 @@ const EditUserForm = () => {
             title: 'Usuario actualizado correctamente',
             confirmButtonText: 'Aceptar'
             }).then(() => {
+                
                 if (isAdmin) {
+                    
                     navigate('/user-maintenance'); 
                 } else {
-                    navigate('/dashboard'); 
+                    navigate('/profile'); 
                 } 
             });
             } catch (error) {

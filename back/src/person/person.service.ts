@@ -45,7 +45,6 @@ export class PersonService {
         dateBirth        
     });
 
-    console.log("Persona antes de ser guardada", person)
     return await this.personRepository.save(person);
 
 } catch (error) {

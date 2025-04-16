@@ -8,8 +8,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true,skipMissingProperties: true, transform: true }));
 
   const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'; 
-  console.log({ frontendUrl });
-
+  
   app.enableCors({
     origin: frontendUrl,  
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',

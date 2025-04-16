@@ -1,3 +1,4 @@
+import { MenuItem } from "src/menuItem/menu-item.entity";
 import { RolOptions } from "src/rol_options/rol_options.entity";
 import { RolUsers } from "src/rol_users/rol_users.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
@@ -18,4 +19,7 @@ export class Rol {
     
     @Column({default: true})
     state: boolean
+
+    @OneToMany(() => MenuItem, (menuItem) => menuItem.rol)
+    menuItems: MenuItem[];
 }

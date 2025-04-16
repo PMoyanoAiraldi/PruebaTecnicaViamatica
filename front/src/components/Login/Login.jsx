@@ -1,10 +1,12 @@
 import { useState } from "react";
+import React, { useEffect } from 'react';
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { login } from "../../redux/userReducer";
 import axios from "axios";
 import Swal from "sweetalert2";
 import styles from "./Login.module.css"
+import { startSession } from "../../redux/sessionReducer";
 
 
 const Login = () =>{
@@ -18,16 +20,35 @@ const Login = () =>{
         });
     };
 
+    useEffect(() => {
+        // Verificamos si ya hay un token en el localStorage
+        const token = localStorage.getItem('token');
+        if (token) {
+            // Si ya hay un token, redirigimos al welcome
+            navigate('/welcome');
+        }
+    }, [navigate]);
+
     const onLogin = (userData) => {
-        console.log("Datos enviados al backend:", userData);
+        
         axios.post(`http://localhost:3010/auth/login`, userData)
         .then(resp => {
-            console.log("Respuesta completa del backend:", resp.data);
+            
             if (resp.data.access_token && resp.data.id)  {
                 localStorage.setItem('token', resp.data.access_token);
                 localStorage.setItem('id', resp.data.id); 
+                localStorage.setItem('user', JSON.stringify({
+                    id: resp.data.id,
+                    email: resp.data.email,
+                    role: resp.data.role,  
+                }));
             
                 dispatch(login({ login: true }));
+                dispatch(startSession({
+                    id: resp.data.id,
+                    userId: resp.data.id,
+                    entryDate: new Date().toISOString()
+                }));
                 navigate('/welcome');
             } else {
                 Swal.fire('Error', 'Credenciales incorrectas', 'error');
@@ -58,6 +79,7 @@ const Login = () =>{
         
         <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
         <div>
+        <h2 className={styles.title}>Ingresar</h2>
         <input className={styles.input} type="text" name="identifier" id="identifier"
         placeholder="Usernam1 o example@mail.com" 
         onChange={handleChange} 

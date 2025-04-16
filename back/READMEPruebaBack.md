@@ -92,4 +92,3 @@ Se utiliza un guard para validar el rol y un decorador personalizado para defini
 ✅ Backend completo y funcional.
 🧪 Tests manuales realizados desde Swagger.
 
-💻 Próximo paso: implementación del frontend.

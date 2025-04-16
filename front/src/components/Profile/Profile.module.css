@@ -1,0 +1,59 @@
+.container {
+    padding: 20px;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.title {
+    color: white;
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
+}
+.profileContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    border: 2px solid rgb(63, 97, 136); /* Borde azul */
+    border-radius: 12px;
+    padding: 20px;
+    color: #f1f1f1; /* Texto claro */
+    background-color: rgba(0, 0, 0, 0.7); /* Fondo oscuro semi-transparente */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Sombrita sutil */
+}
+
+.profileItem {
+    font-size: 1rem;
+    color: #b1adad;
+}
+
+.profileItem strong {
+    font-weight: bold;
+}
+
+.button {
+    background-color: rgb(63, 97, 136);
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    color: white; 
+    border: 2px solid rgb(63, 97, 136);
+    border-radius: 10px;
+    padding: 5px 5px; 
+    font-size: 20px;
+    cursor: pointer; 
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s; 
+    margin: 20px auto 0 auto; /* Centrado horizontal */
+    display: block;
+}
+.button:hover {
+    background-color: white; 
+    color: rgb(63, 97, 136); 
+}
+
+.button:active {
+    background-color: white; 
+    color: rgb(63, 97, 136); 
+    border-color: rgb(63, 97, 136); 
+} 

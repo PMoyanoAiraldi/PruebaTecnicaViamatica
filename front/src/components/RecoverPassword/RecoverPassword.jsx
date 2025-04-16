@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from '../Login/Login.module.css'; 
 
 const RecoverPassword = () => {
     const [input, setInput] = useState({ identifier: '', password: '' });
     const [mensaje, setMensaje] = useState('');
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
         setInput({
@@ -42,6 +44,10 @@ const RecoverPassword = () => {
     }
     };
 
+    const handleCancel = () => {
+        navigate('/login');  // Redirige a la página de login
+    };
+
     return (
     <div className={styles.loginContainer}>
         <h2 className={styles.title}>Recuperar contraseña</h2>
@@ -62,8 +68,12 @@ const RecoverPassword = () => {
             value={input.password}
             onChange={handleChange}
             />
+            <div className={styles.buttonContainer}>
             <button className={styles.button} type="submit">Restablecer</button>
+            <button className={styles.button} onClick={handleCancel}>Cancelar</button>
+            </div>
         </form>
+        
         {mensaje && <p className={styles.message}>{mensaje}</p>}
         </div>
     );

@@ -24,7 +24,7 @@
                 Authorization: `Bearer ${token}`,
                 },
             });
-            console.log(response.data);
+        
             setUsers(response.data)
             } catch (error) {
             console.error('Error al obtener usuarios:', error);
@@ -77,7 +77,7 @@
                 },
                 });
             
-                console.log("Responde de handleSearch User", response.data);
+                
                 setUsers(response.data);
             } catch (error) {
                 console.error('Error al buscar:', error);

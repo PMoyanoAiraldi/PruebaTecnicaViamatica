@@ -3,24 +3,33 @@
     }
     
     .title {
-        font-size: 1.8rem;
-        margin-bottom: 1rem;
+        color: white;
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.6);
     }
     
     .searchBar {
         margin: 1rem 0;
         display: flex;
         gap: 0.5rem;
+        color:rgba(0, 0, 0, 0.6)
     }
     
     .searchInput {
         padding: 0.4rem;
         width: 400px;
+        color: #b1adad;
     }
     
     .table {
         width: 100%;
         border-collapse: collapse;
+        background-color: #312c2c;
+        color: #b1adad;
     }
     
     .table th,
@@ -59,6 +68,7 @@
         align-items: center;
         gap: 1rem;
         margin: 1rem 0;
+        color: #b1adad;
     }
     
     .uploadControls input[type="file"] {
@@ -76,6 +86,7 @@
         align-items: center;
         gap: 1rem;
         margin: 1rem 0;
+        color: #b1adad;
     }
     
     .fileInput {

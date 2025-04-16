@@ -41,7 +41,7 @@ async createUser(createUserDto: CreateUserDto): Promise<User> {
         email = `${username}${count}@${domain}`;
         count++;
     }
-    console.log(`"${createUserDto.username}"`, createUserDto.username.length);
+    
 
 
     const person = await this.personRepository.findOne({ where: { idPerson: createUserDto.personId } });
@@ -53,7 +53,7 @@ async createUser(createUserDto: CreateUserDto): Promise<User> {
     if (existingUser) {
         throw new BadRequestException('Esa persona ya tiene un usuario registrado');
     }
-    console.log('Persona ya tiene usuario?', existingUser);
+    
 
 
     if (typeof createUserDto.password !== 'string') {
@@ -236,7 +236,7 @@ async patchUser(idUser: number, status: string): Promise<User>{
             }
         }
     
-        console.log('Usuarios cargados desde Excel.');
+    
     }
     return {
         created,
@@ -253,12 +253,23 @@ async patchUser(idUser: number, status: string): Promise<User>{
             const inactivos = users.filter(u => u.status === 'inactivo').length;
             const bloqueados = users.filter(u => u.status === 'bloqueado').length;
             const fallidos = users.reduce((acc, user) => acc + (user.failedAttempts || 0), 0);
-        
+            
             return {
             activos,
             inactivos,
             bloqueados,
             fallidos,
             };
+        }
+
+        async findByIdWithRole(idUser: number) {
+            return await this.usersRepository.findOne({
+                where: { idUser },
+                relations: {
+                    rolesUsers: {
+                    rol: true, 
+                    },
+                },
+            });
         }
 }

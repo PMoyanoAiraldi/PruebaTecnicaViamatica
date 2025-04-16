@@ -15,11 +15,11 @@ const Dashboard = () => {
         const getDashboardStats = async () => {
             try {
                 const token = localStorage.getItem('token');
-                console.log(token);
+            
                 const res = await axios.get('http://localhost:3010/usuarios/dashboard/stats', {
                 headers: { Authorization: `Bearer ${token}` }
                 });
-                console.log(res.data)
+                
                 setStats(res.data); 
                 
             } catch (error) {
